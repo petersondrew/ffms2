@@ -319,7 +319,7 @@ void FFMS_Track::GeneratePublicInfo() {
 			continue;
 		RealFrameNumbers.push_back(static_cast<int>(i));
 
-		FFMS_FrameInfo info = {Frames[i].PTS, Frames[i].RepeatPict, Frames[Frames[i].OriginalPos].KeyFrame, Frames[i].FilePos, i};
+		FFMS_FrameInfo info = { Frames[i].PTS, Frames[i].RepeatPict, Frames[Frames[i].OriginalPos].KeyFrame, Frames[i].FilePos, i };
 		PublicFrameInfo.push_back(info);
 	}
 }
@@ -327,4 +327,9 @@ void FFMS_Track::GeneratePublicInfo() {
 const FFMS_FrameInfo *FFMS_Track::GetFrameInfo(size_t N) const {
 	if (N >= PublicFrameInfo.size()) return nullptr;
 	return &PublicFrameInfo[N];
+}
+
+const std::vector<FFMS_FrameInfo> * FFMS_Track::GetFrameInfos() const
+{
+	return &PublicFrameInfo;
 }

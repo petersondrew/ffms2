@@ -73,6 +73,7 @@ public:
 	int VisibleFrameCount() const;
 
 	const FFMS_FrameInfo *GetFrameInfo(size_t N) const;
+	const std::vector<FFMS_FrameInfo> *GetFrameInfos() const;
 
 	void WriteTimecodes(const char *TimecodeFile) const;
 	void Write(ZipFile &Stream) const;
