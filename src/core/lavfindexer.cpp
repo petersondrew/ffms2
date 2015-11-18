@@ -72,6 +72,7 @@ FFMS_Index *FFLAVFIndexer::DoIndexing() {
 	std::vector<SharedVideoContext> VideoContexts(FormatContext->nb_streams);
 
 	auto TrackIndices = make_unique<FFMS_Index>(Filesize, Digest, FFMS_SOURCE_LAVF, ErrorHandling);
+	TrackIndices->InputFormat = *FormatContext->iformat;
 
 	for (unsigned int i = 0; i < FormatContext->nb_streams; i++) {
 		TrackIndices->emplace_back((int64_t)FormatContext->streams[i]->time_base.num * 1000,

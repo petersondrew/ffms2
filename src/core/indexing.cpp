@@ -117,7 +117,8 @@ void FFMS_Index::Finalize(std::vector<SharedVideoContext> const& video_contexts)
 	}
 }
 
-bool FFMS_Index::CompareFileSignature(const char *Filename) {
+bool FFMS_Index::CompareFileSignature(const char *Filename) const
+{
 	int64_t CFilesize;
 	uint8_t CDigest[20];
 	CalculateFileSignature(Filename, &CFilesize, CDigest);
@@ -237,9 +238,14 @@ void FFMS_Indexer::SetAudioNameCallback(TAudioNameCallback ANC, void *ANCPrivate
 }
 
 FFMS_Indexer *CreateIndexer(const char *Filename) {
-	AVFormatContext *FormatContext = nullptr;
+	return CreateIndexer(Filename, nullptr);
+}
 
-	if (avformat_open_input(&FormatContext, Filename, nullptr, nullptr) != 0)
+FFMS_Indexer *CreateIndexer(const char *Filename, const char *VideoCodec) {
+	AVFormatContext *FormatContext = nullptr;
+	auto inputFormat = VideoCodec == nullptr ? nullptr : av_find_input_format(VideoCodec);
+
+	if (avformat_open_input(&FormatContext, Filename, inputFormat, nullptr) != 0)
 		throw FFMS_Exception(FFMS_ERROR_PARSER, FFMS_ERROR_FILE_READ,
 			std::string("Can't open '") + Filename + "'");
 
@@ -357,7 +363,8 @@ void FFMS_Indexer::CheckAudioProperties(int Track, AVCodecContext *Context) {
 	}
 }
 
-void FFMS_Indexer::ParseVideoPacket(SharedVideoContext &VideoContext, AVPacket &pkt, int *RepeatPict, int *FrameType, bool *Invisible) {
+void FFMS_Indexer::ParseVideoPacket(SharedVideoContext &VideoContext, AVPacket &pkt, int *RepeatPict, int *FrameType, bool *Invisible)
+{
 	if (VideoContext.Parser) {
 		uint8_t *OB;
 		int OBSize;

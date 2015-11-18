@@ -167,7 +167,7 @@ void DoIndexing() {
 	}
 
 	UpdateProgress(0, 100, nullptr);
-	FFMS_Indexer *Indexer = FFMS_CreateIndexerWithDemuxer(InputFile, Demuxer, &E);
+	FFMS_Indexer *Indexer = FFMS_CreateIndexerWithDemuxer(InputFile, Demuxer, nullptr, &E);
 	if (Indexer == nullptr)
 		throw Error("\nFailed to initialize indexing: ", E);
 

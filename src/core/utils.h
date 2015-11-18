@@ -136,6 +136,7 @@ void FillAP(FFMS_AudioProperties &AP, AVCodecContext *CTX, FFMS_Track &Frames);
 
 std::wstring widen_path(const char *s);
 void LAVFOpenFile(const char *SourceFile, AVFormatContext *&FormatContext);
+void LAVFOpenFile(const char *SourceFile, AVFormatContext *&FormatContext, AVInputFormat *VideoCodec);
 
 void FlushBuffers(AVCodecContext *CodecContext);
 

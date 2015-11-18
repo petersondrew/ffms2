@@ -55,15 +55,16 @@ public:
 	void Release();
 
 	int Decoder;
+	AVInputFormat InputFormat;
 	int ErrorHandling;
 	int64_t Filesize;
 	uint8_t Digest[20];
 
 	void Finalize(std::vector<SharedVideoContext> const& video_contexts);
-	bool CompareFileSignature(const char *Filename);
+	bool CompareFileSignature(const char *Filename) const;
 	void WriteIndex(const char *IndexFile);
 
-	FFMS_Index(const char *IndexFile);
+	explicit FFMS_Index(const char *IndexFile);
 	FFMS_Index(int64_t Filesize, uint8_t Digest[20], int Decoder, int ErrorHandling);
 };
 
@@ -88,10 +89,10 @@ protected:
 	void WriteAudio(SharedAudioContext &AudioContext, FFMS_Index *Index, int Track);
 	void CheckAudioProperties(int Track, AVCodecContext *Context);
 	uint32_t IndexAudioPacket(int Track, AVPacket *Packet, SharedAudioContext &Context, FFMS_Index &TrackIndices);
-	void ParseVideoPacket(SharedVideoContext &VideoContext, AVPacket &pkt, int *RepeatPict, int *FrameType, bool *Invisible);
+	static void ParseVideoPacket(SharedVideoContext &VideoContext, AVPacket &pkt, int *RepeatPict, int *FrameType, bool *Invisible);
 
 public:
-	FFMS_Indexer(const char *Filename);
+	explicit FFMS_Indexer(const char *Filename);
 	virtual ~FFMS_Indexer() { }
 
 	void SetIndexTrack(int Track, bool Index, bool Dump);
@@ -109,6 +110,8 @@ public:
 };
 
 FFMS_Indexer *CreateIndexer(const char *Filename);
+
+FFMS_Indexer *CreateIndexer(const char *Filename, const char *VideoCodec);
 
 FFMS_Indexer *CreateLavfIndexer(const char *Filename, AVFormatContext *FormatContext);
 

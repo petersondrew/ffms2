@@ -144,7 +144,11 @@ std::wstring widen_path(const char *s) {
 // End of filename hackery.
 
 void LAVFOpenFile(const char *SourceFile, AVFormatContext *&FormatContext) {
-	if (avformat_open_input(&FormatContext, SourceFile, nullptr, nullptr) != 0)
+	LAVFOpenFile(SourceFile, FormatContext, nullptr);
+}
+
+void LAVFOpenFile(const char *SourceFile, AVFormatContext *&FormatContext, AVInputFormat *VideoCodec) {
+	if (avformat_open_input(&FormatContext, SourceFile, VideoCodec, nullptr) != 0)
 		throw FFMS_Exception(FFMS_ERROR_PARSER, FFMS_ERROR_FILE_READ,
 			std::string("Couldn't open '") + SourceFile + "'");
 

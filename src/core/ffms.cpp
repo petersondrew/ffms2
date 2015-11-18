@@ -81,6 +81,7 @@ void av_log_windebug_callback(void* ptr, int level, const char* fmt, va_list vl)
 FFMS_API(void) FFMS_Init(int, int UseUTF8Paths) {
 	if (!FFmpegInited) {
 		av_register_all();
+		avcodec_register_all();
 		avformat_network_init();
 		RegisterCustomParsers();
 #ifdef _WIN32
@@ -394,15 +395,25 @@ FFMS_API(int) FFMS_DefaultAudioFilename(const char *SourceFile, int Track, const
 	return static_cast<int>(s.length() + 1);
 }
 
-FFMS_API(FFMS_Indexer *) FFMS_CreateIndexer(const char *SourceFile, FFMS_ErrorInfo *ErrorInfo) {
+FFMS_Indexer * FFMS_CreateIndexer(const char *SourceFile, FFMS_ErrorInfo *ErrorInfo) {
 	return FFMS_CreateIndexerWithDemuxer(SourceFile, FFMS_SOURCE_DEFAULT, ErrorInfo);
 }
 
-FFMS_API(FFMS_Indexer *) FFMS_CreateIndexerWithDemuxer(const char *SourceFile, int, FFMS_ErrorInfo *ErrorInfo) {
+FFMS_API(FFMS_Indexer *) FFMS_CreateIndexer(const char *SourceFile, const char *VideoCodec, FFMS_ErrorInfo *ErrorInfo)
+{
+	return FFMS_CreateIndexerWithDemuxer(SourceFile, FFMS_SOURCE_DEFAULT, VideoCodec, ErrorInfo);
+}
+
+FFMS_Indexer * FFMS_CreateIndexerWithDemuxer(const char *SourceFile, int, FFMS_ErrorInfo *ErrorInfo) {
+	return FFMS_CreateIndexerWithDemuxer(SourceFile, FFMS_SOURCE_DEFAULT, nullptr, ErrorInfo);
+}
+
+FFMS_API(FFMS_Indexer *) FFMS_CreateIndexerWithDemuxer(const char *SourceFile, int, const char *VideoCodec, FFMS_ErrorInfo *ErrorInfo) {
 	ClearErrorInfo(ErrorInfo);
 	try {
-		return CreateIndexer(SourceFile);
-	} catch (FFMS_Exception &e) {
+		return CreateIndexer(SourceFile, VideoCodec);
+	}
+	catch (FFMS_Exception &e) {
 		e.CopyOut(ErrorInfo);
 		return nullptr;
 	}

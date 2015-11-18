@@ -89,52 +89,52 @@ cp zconf.h ${release_prefix}/include
 
 ### opencore-amr
 
-repack_static_lib() {
-  pushd $1/lib
-  mkdir temp
-  cd temp
-  ar -x ../$2
-  lib *.obj -out:../$2
-  cd ..
-  rm -r temp
-  popd
-}
-
-opencore_common_flags="\
-  CC=cl \
-  CXX=cl \
-  --enable-static \
-  --disable-shared \
-  --disable-compile-c \
-  --prefix=${work_dir}/junk"
-
-cd $work_dir/opencore-amr
-
-export CFLAGS='-nologo -Ox -MTd'
-export CXXFLAGS='-nologo -Ox -MTd'
-
-git clean -xfd
-autoreconf -if
-./configure $opencore_common_flags --libdir=${debug_prefix}/lib --includedir=${debug_prefix}/include
-make -j$NUMBER_OF_PROCESSORS
-make install
-
-repack_static_lib $debug_prefix opencore-amrnb.lib
-repack_static_lib $debug_prefix opencore-amrwb.lib
-
-export CFLAGS='-nologo -Ox -MT'
-export CXXFLAGS='-nologo -Ox -MT'
-
-make clean
-./configure $opencore_common_flags --libdir=${release_prefix}/lib --includedir=${release_prefix}/include
-make -j$NUMBER_OF_PROCESSORS
-make install
-
-repack_static_lib $release_prefix opencore-amrnb.lib
-repack_static_lib $release_prefix opencore-amrwb.lib
-
-unset CFLAGS
-unset CXXFLAGS
+#repack_static_lib() {
+#  pushd $1/lib
+#  mkdir temp
+#  cd temp
+#  ar -x ../$2
+#  lib *.obj -out:../$2
+#  cd ..
+#  rm -r temp
+#  popd
+#}
+#
+#opencore_common_flags="\
+#  CC=cl \
+#  CXX=cl \
+#  --enable-static \
+#  --disable-shared \
+#  --disable-compile-c \
+#  --prefix=${work_dir}/junk"
+#
+#cd $work_dir/opencore-amr
+#
+#export CFLAGS='-nologo -Ox -MTd'
+#export CXXFLAGS='-nologo -Ox -MTd'
+#
+#git clean -xfd
+#autoreconf -if
+#./configure $opencore_common_flags --libdir=${debug_prefix}/lib --includedir=${debug_prefix}/include
+#make -j$NUMBER_OF_PROCESSORS
+#make install
+#
+#repack_static_lib $debug_prefix opencore-amrnb.lib
+#repack_static_lib $debug_prefix opencore-amrwb.lib
+#
+#export CFLAGS='-nologo -Ox -MT'
+#export CXXFLAGS='-nologo -Ox -MT'
+#
+#make clean
+#./configure $opencore_common_flags --libdir=${release_prefix}/lib --includedir=${release_prefix}/include
+#make -j$NUMBER_OF_PROCESSORS
+#make install
+#
+#repack_static_lib $release_prefix opencore-amrnb.lib
+#repack_static_lib $release_prefix opencore-amrwb.lib
+#
+#unset CFLAGS
+#unset CXXFLAGS
 
 ### FFmpeg/Libav
 
@@ -156,13 +156,13 @@ ffmpeg_common_flags="        \
   --enable-runtime-cpudetect \
   --enable-static            \
   --enable-zlib              \
-  --enable-libopencore-amrnb \
-  --enable-libopencore-amrwb \
   --extra-cflags=-D_SYSCRT   \
   --extra-cflags=-wd4005     \
   --extra-cflags=-wd4189     \
   --toolchain=$toolchain     \
   --prefix=$work_dir/junk"
+  #--enable-libopencore-amrnb \
+  #--enable-libopencore-amrwb \
 
 if [ $fork = 'libav' ]; then
 ffmpeg_common_flags="  \
