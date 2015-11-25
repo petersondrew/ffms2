@@ -133,6 +133,7 @@ void FFMS_Index::WriteIndex(const char *IndexFile) {
 	zf.Write<uint32_t>(FFMS_VERSION);
 	zf.Write<uint32_t>(size());
 	zf.Write<uint32_t>(Decoder);
+	zf.Write<AVInputFormat>(InputFormat);
 	zf.Write<uint32_t>(ErrorHandling);
 	zf.Write<uint32_t>(avutil_version());
 	zf.Write<uint32_t>(avformat_version());
@@ -161,6 +162,7 @@ FFMS_Index::FFMS_Index(const char *IndexFile) {
 
 	uint32_t Tracks = zf.Read<uint32_t>();
 	Decoder = zf.Read<uint32_t>();
+	InputFormat = zf.Read<AVInputFormat>();
 	ErrorHandling = zf.Read<uint32_t>();
 
 	if (!(Decoder & FFMS_GetEnabledSources()))
