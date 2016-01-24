@@ -29,7 +29,7 @@ class FFLAVFAudio : public FFMS_AudioSource {
 	std::string SourceFile;
 
 	bool ReadPacket(AVPacket *) override;
-	void FreePacket(AVPacket *Packet) override { av_free_packet(Packet); }
+	void FreePacket(AVPacket *Packet) override { av_packet_unref(Packet); }
 	void Seek() override;
 
 	int64_t FrameTS(size_t Packet) const;
@@ -38,7 +38,7 @@ class FFLAVFAudio : public FFMS_AudioSource {
 		avcodec_close(CodecContext);
 		avformat_close_input(&FormatContext);
 
-		LAVFOpenFile(SourceFile.c_str(), FormatContext);
+		LAVFOpenFile(SourceFile.c_str(), FormatContext, TrackNumber);
 		CodecContext.reset(FormatContext->streams[TrackNumber]->codec);
 		OpenCodec();
 	}
@@ -64,7 +64,7 @@ FFLAVFAudio::FFLAVFAudio(const char *SourceFile, int Track, FFMS_Index &Index, i
 , LastValidTS(ffms_av_nopts_value)
 , SourceFile(SourceFile)
 {
-	LAVFOpenFile(SourceFile, FormatContext);
+	LAVFOpenFile(SourceFile, FormatContext, TrackNumber);
 
 	CodecContext.reset(FormatContext->streams[TrackNumber]->codec);
 	assert(CodecContext);
@@ -128,7 +128,7 @@ bool FFLAVFAudio::ReadPacket(AVPacket *Packet) {
 				return true;
 			}
 		}
-		av_free_packet(Packet);
+		av_packet_unref(Packet);
 	}
 	return false;
 }

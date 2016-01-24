@@ -36,8 +36,6 @@
 #include <algorithm>
 #include <sstream>
 
-extern bool GlobalUseUTF8Paths;
-
 FFMS_Exception::FFMS_Exception(int ErrorType, int SubType, const char *Message) : _Message(Message), _ErrorType(ErrorType), _SubType(SubType) { }
 FFMS_Exception::FFMS_Exception(int ErrorType, int SubType, const std::string &Message) : _Message(Message), _ErrorType(ErrorType), _SubType(SubType) { }
 
@@ -118,32 +116,9 @@ void FillAP(FFMS_AudioProperties &AP, AVCodecContext *CTX, FFMS_Track &Frames) {
 		AP.ChannelLayout = av_get_default_channel_layout(AP.Channels);
 }
 
-// All this filename chikanery that follows is supposed to make sure both local
-// codepage (used by avisynth etc) and UTF8 (potentially used by API users) strings
-// work correctly on Win32.
-// It's a really ugly hack, and I blame Microsoft for it.
-#ifdef _WIN32
-static std::wstring char_to_wstring(const char *s, unsigned int cp) {
-	std::wstring ret;
-	int len;
-	if (!(len = MultiByteToWideChar(cp, MB_ERR_INVALID_CHARS, s, -1, nullptr, 0)))
-		return ret;
-
-	ret.resize(len);
-	if (MultiByteToWideChar(cp, MB_ERR_INVALID_CHARS, s, -1 , &ret[0], len) <= 0)
-		return ret;
-
-	return ret;
-}
-
-std::wstring widen_path(const char *s) {
-	return char_to_wstring(s, GlobalUseUTF8Paths ? CP_UTF8 : CP_ACP);
-}
-#endif
-
 // End of filename hackery.
 
-void LAVFOpenFile(const char *SourceFile, AVFormatContext *&FormatContext) {
+void LAVFOpenFile(const char *SourceFile, AVFormatContext *&FormatContext, int Track) {
 	if (avformat_open_input(&FormatContext, SourceFile, nullptr, nullptr) != 0)
 		throw FFMS_Exception(FFMS_ERROR_PARSER, FFMS_ERROR_FILE_READ,
 			std::string("Couldn't open '") + SourceFile + "'");
@@ -154,6 +129,10 @@ void LAVFOpenFile(const char *SourceFile, AVFormatContext *&FormatContext) {
 		throw FFMS_Exception(FFMS_ERROR_PARSER, FFMS_ERROR_FILE_READ,
 			"Couldn't find stream information");
 	}
+
+	for (int i = 0; i < (int) FormatContext->nb_streams; i++)
+		if (i != Track)
+			FormatContext->streams[i]->discard = AVDISCARD_ALL;
 }
 
 void FlushBuffers(AVCodecContext *CodecContext) {

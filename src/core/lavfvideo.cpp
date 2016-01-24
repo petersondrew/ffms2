@@ -86,7 +86,7 @@ FFLAVFVideo::FFLAVFVideo(const char *SourceFile, int Track, FFMS_Index &Index,
 , SeekMode(SeekMode)
 , Res(this)
 {
-	LAVFOpenFile(SourceFile, FormatContext);
+	LAVFOpenFile(SourceFile, FormatContext, VideoTrack);
 
 	CodecContext = FormatContext->streams[VideoTrack]->codec;
 	CodecContext->thread_count = DecodingThreads;
@@ -162,7 +162,7 @@ void FFLAVFVideo::DecodeNextFrame(int64_t &AStartTime, int64_t &Pos) {
 
 	while (ReadFrame(&Packet) >= 0) {
 		if (Packet.stream_index != VideoTrack) {
-			av_free_packet(&Packet);
+			av_packet_unref(&Packet);
 			continue;
 		}
 
@@ -173,7 +173,7 @@ void FFLAVFVideo::DecodeNextFrame(int64_t &AStartTime, int64_t &Pos) {
 			Pos = Packet.pos;
 
 		bool FrameFinished = DecodePacket(&Packet);
-		av_free_packet(&Packet);
+		av_packet_unref(&Packet);
 		if (FrameFinished)
 			return;
 	}
